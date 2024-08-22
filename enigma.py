@@ -54,16 +54,16 @@ class Enigma:
         i = self.hash_map.get(letter)
         if i is None:
             return letter
-
         number = ((2 * self.wheels[0]) - self.wheels[1] + self.wheels[2]) % 26
         if number != 0:
             i += number
         else:
             i += 1
         i = i % MODOLO_NUMBER
-        c1 = self.hash_map.get(i)
-        if c1 is None:
+        c1 = [k for k, v in self.hash_map.items() if v == i]
+        if not c1:
             return letter
+        c1=c1[0]
         c2 = self.reflector_map.get(c1)
         if c2 is None:
             return letter
@@ -75,11 +75,12 @@ class Enigma:
         else:
             i =i- 1
         i = i % MODOLO_NUMBER
-        c3 = self.hash_map.get(i)
-        if c3 is None:
+
+        c3 = [k for k, v in self.hash_map.items() if v == i]
+        if not c3:
             return letter
-        else:
-            return c3
+        c3=c3[0]
+        return c3
 
 
 class JSONFileError(Exception):
@@ -91,7 +92,6 @@ def load_enigma_from_path(path):
     try:
         with open(path, 'r') as f:
             load_dict = json.load(f)
-
             return Enigma(load_dict.get("hash_map"), load_dict.get("wheels"),
                           load_dict.get("reflector_map"))
     except (json.JSONDecodeError, IOError) as e:
