@@ -135,11 +135,11 @@ def main():
                 output.write(encrypted_message)
         else:
             print(encrypted_message)
-    except JSONFileError as e:
-        print(f"The enigma script has encountered an error: {e}", file=sys.stderr)
+    except JSONFileError:
+        print(f"The enigma script has encountered an error", file=sys.stderr)
         sys.exit(1)
-    except IOError as e:
-        print(f"An I/O error occurred: {e}", file=sys.stderr)
+    except IOError:
+        print(f"The enigma script has encountered an error", file=sys.stderr)
         sys.exit(1)
 
 
