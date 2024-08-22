@@ -11,75 +11,75 @@ class Enigma:
 
     def encrypt(self, message):
 
-        wheelsTempSave = copy(self.wheels)
-        letterAlreadyEncrypted = 0;
-        newMessage = ""
+        wheels_temp_save = copy(self.wheels)
+        letter_already_encrypted = 0
+        new_message = ""
         for elem in message:
-            newLetter = self.encryptByletter(elem, letterAlreadyEncrypted)
-            if (newLetter != elem):
-                letterAlreadyEncrypted += 1
-            newMessage += newLetter
-            self.wheelsGoUp(letterAlreadyEncrypted)
-        self.wheels = wheelsTempSave
-        return newMessage
+            new_letter = self.encryptByletter(elem)
+            if new_letter != elem:
+                letter_already_encrypted += 1
+            new_message += new_letter
+            self.wheelsGoUp(letter_already_encrypted)
+        self.wheels = wheels_temp_save
+        return new_message
 
-    def wheelsGoUp(self, letterAlreadyEncrypted):
+    def wheelsGoUp(self, letter_already_encrypted):
         TEN = 10
         THREE = 3
         FIVE = 5
-        W_TWO = 1
-        W_THREE = 2
+        WTWO = 1
+        WTHREE = 2
         TWO = 2
-        MAX_W1_SIZE = 8
-        if self.wheels[0] == MAX_W1_SIZE:
-            self.wheels[0] = 1
+
+        new_wheels=copy(self.wheels)
+        MAXW1SIZE = 8
+        if self.wheels[0] >= MAXW1SIZE:
+            new_wheels[0] = 1
         else:
             self.wheels[0] += 1
-        if letterAlreadyEncrypted % TWO == 0:
-            self.wheels[W_TWO] *= TWO
+        if letter_already_encrypted % TWO == 0:
+            new_wheels[WTWO] *= TWO
         else:
-            self.wheels[W_TWO] -= 1
-        if letterAlreadyEncrypted % TEN == 0:
-            self.wheels[W_THREE] = TEN
-        elif letterAlreadyEncrypted % THREE == 0:
-            self.wheels[W_THREE] = FIVE
+            new_wheels[WTWO] -= 1
+        if letter_already_encrypted % TEN == 0:
+            new_wheels[WTHREE] = TEN
+        elif letter_already_encrypted % THREE == 0:
+            new_wheels[WTHREE] = FIVE
         else:
-            self.wheels[W_THREE] = 0
+            new_wheels[WTHREE] = 0
+        self.wheels=new_wheels
 
-    def encryptByletter(self, letter, letterAlreadyEncrypted):
+    def encryptByletter(self, letter):
         MODOLO_NUMBER = 26
-        if letter in self.hash_map:
-            i = self.hash_map.get(letter, None)
-        else:
+        i = self.hash_map.get(letter)
+        if i is None:
             return letter
-        number = (2 * self.wheels[0] - self.wheels[1] + self.wheels[2]) % 26
+
+        number = ((2 * self.wheels[0]) - self.wheels[1] + self.wheels[2]) % 26
         if number != 0:
             i += number
         else:
             i += 1
         i = i % MODOLO_NUMBER
-        if i in self.hash_map:
-            c1 = self.hash_map.get(i, None)
-        else:
+        c1 = self.hash_map.get(i)
+        if c1 is None:
             return letter
-        if c1 in self.reflector_map:
-            c2 = self.reflector_map.get(c1, None)
-        else:
+        c2 = self.reflector_map.get(c1)
+        if c2 is None:
             return letter
-        if c2 in self.hash_map:
-            i = self.hash_map.get(c2, None)
-        else:
+        i = self.hash_map.get(c2)
+        if i is None:
             return letter
         if number != 0:
-            i -= number
+            i =i- number
         else:
-            i -= 1
+            i =i- 1
         i = i % MODOLO_NUMBER
-        if i in self.hash_map:
-            c3 = self.hash_map.get(i, None)
-        else:
+        c3 = self.hash_map.get(i)
+        if c3 is None:
             return letter
-        return c3
+        else:
+            return c3
 
 
 class JSONFileError(Exception):
@@ -91,18 +91,18 @@ def load_enigma_from_path(path):
     try:
         with open(path, 'r') as f:
             load_dict = json.load(f)
-            
+
             return Enigma(load_dict.get("hash_map"), load_dict.get("wheels"),
                           load_dict.get("reflector_map"))
-    except  Exception:
-        raise JSONFileError("couldnt open file")
+    except (json.JSONDecodeError, IOError) as e:
+        raise JSONFileError(f"Error loading JSON file: {e}")
 
 
 def main():
-    MAX_ARGV = 7
-    MIN_ARGV = 5
+    MAXARGV = 7
+    MINARGV = 5
 
-    if len(sys.argv) < MIN_ARGV or len(sys.argv) > MAX_ARGV:
+    if len(sys.argv) < MINARGV or len(sys.argv) > MAXARGV:
         print("Usage: python3 enigma.py -c <config_file> -i <input_file> -o <output_file> ", file=sys.stderr)
         sys.exit(1)
 
