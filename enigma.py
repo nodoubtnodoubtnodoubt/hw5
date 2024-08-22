@@ -9,8 +9,7 @@ class Enigma:
         self.wheels = copy(wheels)
         self.reflector_map = copy(reflector_map)
 
-    def encrypt(self, message):
-
+    def encrypt(self,message):
         wheels_temp_save = copy(self.wheels)
         letter_already_encrypted = 0
         new_message = ""
@@ -31,12 +30,12 @@ class Enigma:
         WTHREE = 2
         TWO = 2
 
-        new_wheels=copy(self.wheels)
+        new_wheels = copy(self.wheels)
         MAXW1SIZE = 8
         if self.wheels[0] >= MAXW1SIZE:
             new_wheels[0] = 1
         else:
-            self.wheels[0] += 1
+            new_wheels[0] += 1
         if letter_already_encrypted % TWO == 0:
             new_wheels[WTWO] *= TWO
         else:
@@ -47,13 +46,14 @@ class Enigma:
             new_wheels[WTHREE] = FIVE
         else:
             new_wheels[WTHREE] = 0
-        self.wheels=new_wheels
+        self.wheels = new_wheels
 
     def encryptByletter(self, letter):
         MODOLO_NUMBER = 26
         i = self.hash_map.get(letter)
         if i is None:
             return letter
+
         number = ((2 * self.wheels[0]) - self.wheels[1] + self.wheels[2]) % 26
         if number != 0:
             i += number
@@ -63,7 +63,7 @@ class Enigma:
         c1 = [k for k, v in self.hash_map.items() if v == i]
         if not c1:
             return letter
-        c1=c1[0]
+        c1 = c1[0]
         c2 = self.reflector_map.get(c1)
         if c2 is None:
             return letter
@@ -71,17 +71,14 @@ class Enigma:
         if i is None:
             return letter
         if number != 0:
-            i =i- number
+            i = i - number
         else:
-            i =i- 1
+            i = i - 1
         i = i % MODOLO_NUMBER
-
         c3 = [k for k, v in self.hash_map.items() if v == i]
         if not c3:
             return letter
-        c3=c3[0]
-        return c3
-
+        return c3[0]
 
 class JSONFileError(Exception):
     def __init__(self, message):
@@ -129,9 +126,10 @@ def main():
 
     try:
         enigma = load_enigma_from_path(config_file)
+        encrypted_message=""
         with open(input_file, 'r') as f:
-            message = f.read()
-            encrypted_message = enigma.encrypt(message)
+           for message in f:
+               encrypted_message += enigma.encrypt(message)
         if output_file:
             with open(output_file, 'w') as output:
                 output.write(encrypted_message)
